@@ -2,6 +2,8 @@
 
 Utility functions for usage in [protoc-gen-elm](https://github.com/andreasewering/protoc-gen-elm) and your protobuf application.
 
+** MOVED TO https://package.elm-lang.org/packages/anmolitor/elm-protoc-utils/latest/ **
+
 ## Contents
 
 - Functions that are used by [protoc-gen-elm](https://github.com/andreasewering/protoc-gen-elm)'s generated code (e.g. encoding JSON to bytes using Hex Encoding)
