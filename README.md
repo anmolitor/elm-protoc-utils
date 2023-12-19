@@ -1,10 +1,10 @@
 # Elm Protoc Utils
 
-Utility functions for usage in [protoc-gen-elm](https://github.com/andreasewering/protoc-gen-elm) and your protobuf application.
+Utility functions for usage in [protoc-gen-elm](https://github.com/anmolitor/protoc-gen-elm) and your protobuf application.
 
 ## Contents
 
-- Functions that are used by [protoc-gen-elm](https://github.com/andreasewering/protoc-gen-elm)'s generated code (e.g. encoding JSON to bytes using Hex Encoding)
+- Functions that are used by [protoc-gen-elm](https://github.com/anmolitor/protoc-gen-elm)'s generated code (e.g. encoding JSON to bytes using Hex Encoding)
 - Functions that help bridge that gap between "Protobuf" Elm Types and "Standard" Elm Types (e.g. timestampToPosix)
 
 ## Why an extra package?
