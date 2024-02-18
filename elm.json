@@ -1,23 +1,23 @@
 {
-  "type": "package",
-  "name": "anmolitor/elm-protoc-utils",
-  "summary": "Utility functions for usage with protoc-gen-elm and elm-protoc-types",
-  "license": "BSD-3-Clause",
-  "version": "1.0.0",
-  "exposed-modules": [
-    "Protobuf.Utils.Bytes",
-    "Protobuf.Utils.Int64",
-    "Protobuf.Utils.Timestamp"
-  ],
-  "elm-version": "0.19.1 <= v < 0.20.0",
-  "dependencies": {
-    "danfishgold/base64-bytes": "1.1.0 <= v < 2.0.0",
-    "elm/bytes": "1.0.8 <= v < 2.0.0",
-    "elm/core": "1.0.0 <= v < 2.0.0",
-    "elm/json": "1.1.3 <= v < 2.0.0",
-    "elm/time": "1.0.0 <= v < 2.0.0",
-    "eriktim/elm-protocol-buffers": "1.2.0 <= v < 2.0.0",
-    "rtfeldman/elm-iso8601-date-strings": "1.1.4 <= v < 2.0.0"
-  },
-  "test-dependencies": {}
+    "type": "package",
+    "name": "anmolitor/elm-protoc-utils",
+    "summary": "Utility functions for usage with protoc-gen-elm and elm-protoc-types",
+    "license": "BSD-3-Clause",
+    "version": "1.1.0",
+    "exposed-modules": [
+        "Protobuf.Utils.Bytes",
+        "Protobuf.Utils.Int64",
+        "Protobuf.Utils.Timestamp"
+    ],
+    "elm-version": "0.19.1 <= v < 0.20.0",
+    "dependencies": {
+        "danfishgold/base64-bytes": "1.1.0 <= v < 2.0.0",
+        "elm/bytes": "1.0.8 <= v < 2.0.0",
+        "elm/core": "1.0.0 <= v < 2.0.0",
+        "elm/json": "1.1.3 <= v < 2.0.0",
+        "elm/time": "1.0.0 <= v < 2.0.0",
+        "eriktim/elm-protocol-buffers": "1.2.0 <= v < 2.0.0",
+        "rtfeldman/elm-iso8601-date-strings": "1.1.4 <= v < 2.0.0"
+    },
+    "test-dependencies": {}
 }
