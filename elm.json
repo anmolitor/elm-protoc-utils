@@ -3,7 +3,7 @@
     "name": "anmolitor/elm-protoc-utils",
     "summary": "Utility functions for usage with protoc-gen-elm and elm-protoc-types",
     "license": "BSD-3-Clause",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "exposed-modules": [
         "Protobuf.Utils.Bytes",
         "Protobuf.Utils.Int64",
