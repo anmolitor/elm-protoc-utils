@@ -14,7 +14,7 @@ import Json.Decode
 This is done by first decoding into a dict/list of key/value pairs with Strings as keys
 and then decoding each key while inserting them into a new dict.
 -}
-dictDecoder : Json.Decode.Decoder comparable -> Json.Decode.Decoder v -> Json.Decode.Decoder (Dict comparable v)
+dictDecoder : (String -> Result String comparable) -> Json.Decode.Decoder v -> Json.Decode.Decoder (Dict comparable v)
 dictDecoder keyDecoder valueDecoder =
     Json.Decode.keyValuePairs valueDecoder
         |> Json.Decode.andThen
@@ -22,12 +22,12 @@ dictDecoder keyDecoder valueDecoder =
                 (\( k, v ) ->
                     Json.Decode.andThen
                         (\d ->
-                            case Json.Decode.decodeString keyDecoder k of
+                            case keyDecoder k of
                                 Ok ok ->
                                     Json.Decode.succeed (Dict.insert ok v d)
 
                                 Err err ->
-                                    Json.Decode.fail (Json.Decode.errorToString err)
+                                    Json.Decode.fail err
                         )
                 )
                 (Json.Decode.succeed Dict.empty)
