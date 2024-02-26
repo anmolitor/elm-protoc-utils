@@ -1,4 +1,4 @@
-module Protobuf.Utils.Float exposing (..)
+module Protobuf.Utils.Float exposing (stringOrFloatJsonDecoder)
 
 {-| Utility methods for Float needed in the Protobuf/gRPC context.
 
