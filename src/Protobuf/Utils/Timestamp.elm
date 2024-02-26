@@ -10,6 +10,7 @@ import Iso8601
 import Json.Decode
 import Json.Encode
 import Protobuf.Types.Int64 as Int64 exposing (Int64)
+import Protobuf.Utils.Int64 as Int64
 import Time
 
 
@@ -29,12 +30,16 @@ posixToTimestamp posix =
 
         seconds =
             -- avoid int32 math since millis may be in the "unsafe" 2^31 - 2^53 range
-            floor (toFloat millis / 1000)
+            if millis < 0 then
+                -1 * floor (toFloat millis / -1000)
+
+            else
+                floor (toFloat millis / 1000)
 
         nanos =
-            modBy 1000 millis * 1000000
+            remainderBy 1000 millis * 1000000
     in
-    { seconds = Int64.fromInts 0 seconds, nanos = nanos }
+    { seconds = Int64.fromInt seconds, nanos = nanos }
 
 
 {-| Convert the protobuf seconds/nanos representation into a posix millisecond timestamp
@@ -42,12 +47,11 @@ posixToTimestamp posix =
 timestampToPosix : Timestamp -> Time.Posix
 timestampToPosix { seconds, nanos } =
     let
-        ( _, lowerSeconds ) =
-            Int64.toInts seconds
+        int53Seconds =
+            Int64.toIntUnsafe seconds
 
-        -- TODO we should be able to do a little better here so that the max safe JS integer range works at least.
         millis =
-            lowerSeconds * 1000 + nanos // 1000000
+            (int53Seconds * 1000) + (nanos // 1000000)
     in
     Time.millisToPosix millis
 

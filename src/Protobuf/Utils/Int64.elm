@@ -1,16 +1,20 @@
 module Protobuf.Utils.Int64 exposing
     ( toSignedString, toUnsignedString
-    ,fromSignedString, fromUnsignedString
+    , fromSignedString, fromUnsignedString, fromInt, toIntUnsafe
+    , int64JsonDecoder, uint64JsonDecoder, int64JsonEncoder, uint64JsonEncoder
     )
 
 {-| Utility methods for Int64 needed in the Protobuf/gRPC context.
 
 @docs toSignedString, toUnsignedString
-@docs fromSignedString, fromUnsignedString
+@docs fromSignedString, fromUnsignedString, fromInt, toIntUnsafe
+@docs int64JsonDecoder, uint64JsonDecoder, int64JsonEncoder, uint64JsonEncoder
 
 -}
 
 import Bitwise
+import Json.Decode
+import Json.Encode
 import Protobuf.Types.Int64 as Int64 exposing (Int64)
 
 
@@ -40,7 +44,7 @@ toSignedString int64 =
 
         newUpper =
             if newLower > 0xFFFFFFFF then
-                upper
+                upper + 1
 
             else
                 upper
@@ -49,7 +53,7 @@ toSignedString int64 =
         toUnsignedStringHelp (Bitwise.shiftRightZfBy 0 origUpper) (Bitwise.shiftRightZfBy 0 origLower) ""
 
     else
-        "-" ++ toUnsignedStringHelp newUpper newLower ""
+        "-" ++ toUnsignedStringHelp newUpper (Bitwise.shiftRightZfBy 0 newLower) ""
 
 
 {-| Interpret a `Int64` as an unsigned integer, and give its string representation
@@ -146,6 +150,125 @@ fromUnsignedString str =
 
     else
         fromUnsignedStringHelp str ( 0, 0 ) |> Maybe.map (\( x, y ) -> Int64.fromInts x y)
+
+
+{-| Encodes an Int64 as a signed integer JSON string
+-}
+int64JsonEncoder : Int64 -> Json.Encode.Value
+int64JsonEncoder int64 =
+    Json.Encode.string (toSignedString int64)
+
+
+{-| Encodes an Int64 as an unsigned integer JSON string
+-}
+uint64JsonEncoder : Int64 -> Json.Encode.Value
+uint64JsonEncoder int64 =
+    Json.Encode.string (toUnsignedString int64)
+
+
+{-| Decodes an Int64 from a signed integer JSON string (i.e. {"key": "-123456789"})
+or a JSON number literal (i.e. {"key": -123})
+-}
+int64JsonDecoder : Json.Decode.Decoder Int64
+int64JsonDecoder =
+    Json.Decode.oneOf
+        [ Json.Decode.string
+            |> Json.Decode.andThen
+                (\str ->
+                    case fromSignedString str of
+                        Just int64 ->
+                            Json.Decode.succeed int64
+
+                        Nothing ->
+                            Json.Decode.fail "Expected int64"
+                )
+        , Json.Decode.int |> Json.Decode.map fromInt
+        ]
+
+
+{-| Decodes an Int64 from an unsigned integer JSON string (i.e. {"key": "123456789"})
+or a JSON number literal (i.e. {"key": 123})
+-}
+uint64JsonDecoder : Json.Decode.Decoder Int64
+uint64JsonDecoder =
+    Json.Decode.oneOf
+        [ Json.Decode.string
+            |> Json.Decode.andThen
+                (\str ->
+                    case fromUnsignedString str of
+                        Just int64 ->
+                            Json.Decode.succeed int64
+
+                        Nothing ->
+                            Json.Decode.fail "Expected int64"
+                )
+        , Json.Decode.int |> Json.Decode.map fromInt
+        ]
+
+
+{-| Constructs an Int64 from an Int. The Int can be bigger than 32-bit,
+you can expect Integers in the safe int range in JS (-(2^53 - 1) to 2^53 - 1) to work.
+-}
+fromInt : Int -> Int64
+fromInt raw =
+    if raw < 0 then
+        let
+            lower =
+                raw
+                    |> abs
+                    |> Bitwise.complement
+                    |> Bitwise.shiftRightZfBy 0
+                    |> (+) 1
+
+            upper =
+                if lower > 0xFFFFFFFF then
+                    raw // (2 ^ 32)
+
+                else
+                    raw // (2 ^ 32) - 1
+        in
+        Int64.fromInts
+            (upper |> Bitwise.shiftRightZfBy 0)
+            (lower |> Bitwise.shiftRightZfBy 0)
+
+    else if raw > 0xFFFFFFFF then
+        Int64.fromInts (raw // (2 ^ 32)) (Bitwise.shiftRightZfBy 0 raw)
+
+    else
+        Int64.fromInts 0 raw
+
+
+{-| Attempts to convert the Int64 into a JS Int.
+This should be safe for the safe int range in JS (-(2^53 - 1) to 2^53 - 1).
+Expect weird results for anything outside that range.
+-}
+toIntUnsafe : Int64 -> Int
+toIntUnsafe int64 =
+    let
+        (( origUpper, origLower ) as input) =
+            Int64.toInts int64
+
+        isPositive =
+            Bitwise.and (Bitwise.shiftLeftBy 31 1) upper /= 0
+
+        ( upper, lower ) =
+            complement input
+
+        newLower =
+            lower + 1
+
+        newUpper =
+            if newLower > 0xFFFFFFFF then
+                upper + 1
+
+            else
+                upper
+    in
+    if isPositive then
+        origUpper * 2 ^ 32 + Bitwise.shiftRightZfBy 0 origLower
+
+    else
+        -1 * ((newUpper * 2 ^ 32) + Bitwise.shiftRightZfBy 0 newLower)
 
 
 maxSafeDigitsAtOnce : Int

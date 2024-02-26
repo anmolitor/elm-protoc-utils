@@ -3,7 +3,7 @@
     "name": "anmolitor/elm-protoc-utils",
     "summary": "Utility functions for usage with protoc-gen-elm and elm-protoc-types",
     "license": "BSD-3-Clause",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "exposed-modules": [
         "Protobuf.Utils.Bytes",
         "Protobuf.Utils.Dict",
@@ -20,5 +20,7 @@
         "eriktim/elm-protocol-buffers": "1.2.0 <= v < 2.0.0",
         "rtfeldman/elm-iso8601-date-strings": "1.1.4 <= v < 2.0.0"
     },
-    "test-dependencies": {}
+    "test-dependencies": {
+        "elm-explorations/test": "2.2.0 <= v < 3.0.0"
+    }
 }
