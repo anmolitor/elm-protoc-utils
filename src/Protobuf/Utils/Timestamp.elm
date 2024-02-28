@@ -1,4 +1,7 @@
-module Protobuf.Utils.Timestamp exposing (posixToTimestamp, timestampToPosix, timestampJsonEncoder, timestampJsonDecoder)
+module Protobuf.Utils.Timestamp exposing
+    ( posixToTimestamp, timestampToPosix, timestampJsonEncoder, timestampJsonDecoder
+    , posixToTimestampOld, timestampToPosixOld
+    )
 
 {-| Conversions between the Protobuf Well-Known Type "Timestamp" and Elm's `Time.Posix`.
 
@@ -9,21 +12,40 @@ module Protobuf.Utils.Timestamp exposing (posixToTimestamp, timestampToPosix, ti
 import Iso8601
 import Json.Decode
 import Json.Encode
-import Protobuf.Types.Int64 as Int64 exposing (Int64)
+import Protobuf.Types.Int64 as Int64
 import Protobuf.Utils.Int64 as Int64
+import Protobuf.Utils.Internal as Internal
 import Time
-
-
-type alias Timestamp =
-    { seconds : Int64
-    , nanos : Int
-    }
 
 
 {-| Convert a posix millisecond timestamp into the protobuf seconds/nanos representation
 -}
-posixToTimestamp : Time.Posix -> Timestamp
+posixToTimestamp : Time.Posix -> Internal.TimestampOrDuration
 posixToTimestamp posix =
+    Internal.millisToTimestampOrDuration (toFloat <| Time.posixToMillis posix)
+
+
+{-| Convert the protobuf seconds/nanos representation into a posix millisecond timestamp
+-}
+timestampToPosix : Internal.TimestampOrDuration -> Time.Posix
+timestampToPosix timestamp =
+    Time.millisToPosix (floor <| Internal.timestampOrDurationToMillis timestamp)
+
+
+timestampToPosixOld : Internal.TimestampOrDuration -> Time.Posix
+timestampToPosixOld { seconds, nanos } =
+    let
+        int53Seconds =
+            Int64.toIntUnsafe seconds
+
+        millis =
+            (int53Seconds * 1000) + (nanos // 1000000)
+    in
+    Time.millisToPosix millis
+
+
+posixToTimestampOld : Time.Posix -> Internal.TimestampOrDuration
+posixToTimestampOld posix =
     let
         millis =
             Time.posixToMillis posix
@@ -42,23 +64,9 @@ posixToTimestamp posix =
     { seconds = Int64.fromInt seconds, nanos = nanos }
 
 
-{-| Convert the protobuf seconds/nanos representation into a posix millisecond timestamp
--}
-timestampToPosix : Timestamp -> Time.Posix
-timestampToPosix { seconds, nanos } =
-    let
-        int53Seconds =
-            Int64.toIntUnsafe seconds
-
-        millis =
-            (int53Seconds * 1000) + (nanos // 1000000)
-    in
-    Time.millisToPosix millis
-
-
 {-| Custom JSON encoder for timestamps as ISO-8601 date strings
 -}
-timestampJsonEncoder : Timestamp -> Json.Encode.Value
+timestampJsonEncoder : Internal.TimestampOrDuration -> Json.Encode.Value
 timestampJsonEncoder timestamp =
     timestampToPosix timestamp
         |> Iso8601.fromTime
@@ -67,7 +75,7 @@ timestampJsonEncoder timestamp =
 
 {-| Custom JSON decoder for timestamps as ISO-8601 date strings
 -}
-timestampJsonDecoder : Json.Decode.Decoder Timestamp
+timestampJsonDecoder : Json.Decode.Decoder Internal.TimestampOrDuration
 timestampJsonDecoder =
     Json.Decode.string
         |> Json.Decode.andThen

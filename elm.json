@@ -7,6 +7,7 @@
     "exposed-modules": [
         "Protobuf.Utils.Bytes",
         "Protobuf.Utils.Dict",
+        "Protobuf.Utils.Duration",
         "Protobuf.Utils.Float",
         "Protobuf.Utils.Int32",
         "Protobuf.Utils.Int64",
