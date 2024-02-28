@@ -1,4 +1,4 @@
-module Protobuf.Utils.Duration exposing (..)
+module Protobuf.Utils.Duration exposing (millisToDuration, durationToMillis, durationJsonEncoder, durationJsonDecoder)
 
 {-| Conversions between the Protobuf Well-Known Type "Duration" and Milliseconds as a Int to be compatable with Elm's `Time.Posix`.
 
