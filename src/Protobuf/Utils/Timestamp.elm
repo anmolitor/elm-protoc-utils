@@ -1,7 +1,4 @@
-module Protobuf.Utils.Timestamp exposing
-    ( posixToTimestamp, timestampToPosix, timestampJsonEncoder, timestampJsonDecoder
-    , posixToTimestampOld, timestampToPosixOld
-    )
+module Protobuf.Utils.Timestamp exposing (posixToTimestamp, timestampToPosix, timestampJsonEncoder, timestampJsonDecoder)
 
 {-| Conversions between the Protobuf Well-Known Type "Timestamp" and Elm's `Time.Posix`.
 
@@ -30,38 +27,6 @@ posixToTimestamp posix =
 timestampToPosix : Internal.TimestampOrDuration -> Time.Posix
 timestampToPosix timestamp =
     Time.millisToPosix (floor <| Internal.timestampOrDurationToMillis timestamp)
-
-
-timestampToPosixOld : Internal.TimestampOrDuration -> Time.Posix
-timestampToPosixOld { seconds, nanos } =
-    let
-        int53Seconds =
-            Int64.toIntUnsafe seconds
-
-        millis =
-            (int53Seconds * 1000) + (nanos // 1000000)
-    in
-    Time.millisToPosix millis
-
-
-posixToTimestampOld : Time.Posix -> Internal.TimestampOrDuration
-posixToTimestampOld posix =
-    let
-        millis =
-            Time.posixToMillis posix
-
-        seconds =
-            -- avoid int32 math since millis may be in the "unsafe" 2^31 - 2^53 range
-            if millis < 0 then
-                -1 * floor (toFloat millis / -1000)
-
-            else
-                floor (toFloat millis / 1000)
-
-        nanos =
-            remainderBy 1000 millis * 1000000
-    in
-    { seconds = Int64.fromInt seconds, nanos = nanos }
 
 
 {-| Custom JSON encoder for timestamps as ISO-8601 date strings
