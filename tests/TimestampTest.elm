@@ -4,7 +4,6 @@ import Expect
 import Fuzz exposing (Fuzzer)
 import Json.Decode
 import Protobuf.Types.Int64 as Int64 exposing (Int64)
-import Protobuf.Utils.Internal as Internal
 import Protobuf.Utils.Timestamp as Timestamp
 import Test exposing (..)
 
@@ -91,7 +90,7 @@ suite =
         ]
 
 
-safeTimestampFuzzer : Fuzzer Internal.TimestampOrDuration
+safeTimestampFuzzer : Fuzzer Timestamp
 safeTimestampFuzzer =
     Fuzz.map3
         (\secH secL nanos ->
@@ -113,7 +112,7 @@ safeTimestampFuzzer =
 
 {-| The Iso8601 Format cannot deal with the year 10000 since the format is YYYY-...
 -}
-safeForIso8601FormatTimestampFuzzer : Fuzzer Internal.TimestampOrDuration
+safeForIso8601FormatTimestampFuzzer : Fuzzer Timestamp
 safeForIso8601FormatTimestampFuzzer =
     safeTimestampFuzzer
         |> Fuzz.map
@@ -143,3 +142,9 @@ safeHigherSecondsBitsFuzzer =
 maxSafeHigherBitsInt : Int
 maxSafeHigherBitsInt =
     floor ((2 ^ 53 - 1) / (2 ^ 32 * 1000))
+
+
+type alias Timestamp =
+    { seconds : Int64
+    , nanos : Int
+    }

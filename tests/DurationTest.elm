@@ -6,7 +6,6 @@ import Json.Decode
 import Json.Encode
 import Protobuf.Types.Int64 as Int64 exposing (Int64)
 import Protobuf.Utils.Duration as Duration
-import Protobuf.Utils.Internal as Internal
 import Test exposing (..)
 
 
@@ -88,7 +87,7 @@ suite =
         ]
 
 
-safeDurationFuzzer : Fuzzer Internal.TimestampOrDuration
+safeDurationFuzzer : Fuzzer Duration
 safeDurationFuzzer =
     Fuzz.map3
         (\secH secL nanos ->
@@ -122,3 +121,9 @@ safeHigherSecondsBitsFuzzer =
 maxSafeHigherBitsInt : Int
 maxSafeHigherBitsInt =
     floor ((2 ^ 53 - 1) / (2 ^ 32 * 1000))
+
+
+type alias Duration =
+    { seconds : Int64
+    , nanos : Int
+    }
